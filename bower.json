@@ -1,0 +1,11 @@
+{
+  "name": "th-u-data-selector",
+  "version": "0.0.0",
+  "keywords": "thelma, polymer, web-components",
+  "main": "th-u-data-selector.html",
+  "dependencies": {  
+    "th-theme": "thelmanews/th-theme",
+    "polymer": "Polymer/polymer#~0.5.1"
+  }
+}
+
