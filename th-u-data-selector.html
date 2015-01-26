@@ -15,7 +15,7 @@ A Thelma component providing solution to no problem in particular.
 @homepage http://thelmanews.github.io/th-u-data-selector
 -->
 
-<polymer-element name="th-u-data-selector" attributes="data selectionSetting selctions ">
+<polymer-element name="th-u-data-selector" attributes="input selectionSetting selctions ">
   <template>
     <style>
         core-selector {
@@ -46,8 +46,6 @@ A Thelma component providing solution to no problem in particular.
     </style>
     <th-data-utility id="data_utility"></th-data-utility>
 
-<!--     <link rel="stylesheet" href="th-u-data-selector.css">
- -->
     <template if="{{_dataAttributes}}">
       <div class="columnNames">
         <template repeat="{{sel, index in selectionSettings}}">
@@ -71,35 +69,32 @@ A Thelma component providing solution to no problem in particular.
   </template>
   <script>
     Polymer({
-      //for testing
-      data: [
-        {"time": "2012", "x": 100, "y": 50},
-      ],
+     
       selections: ['',''],
       selectionSettings: [
         {name: 'label', type: 'any', multi: false},
         {name: 'value', type: 'numerical', multi: true}
       ],
       observe: {
-        data: "_extractAttributes",
+        input: "_extractAttributes",
         numOfSelections: "_extractAttributes"        
       },
       ready: function() {
         this._extractAttributes();
 
         this.addEventListener('core-select', function() {
-          console.log('core-select');
-          self.fire('th-data-selection-changed');
-        })
+          this.fire('th-data-selection-changed');
+        }.bind(this));
       },
       _extractAttributes: function() {
-        console.log('extract attrs', this.data);
+
         var self = this;
-        if(self.data && self.data[0]) {
-          self._dataAttributes = Object.keys(self.data[0]);
+        if(self.input && self.input[0]) {
+          self._dataAttributes = Object.keys(self.input[0]);
+          self.getDefaultSelections();
+
         }
 
-        self.getDefaultSelections();
 
       },
 
@@ -107,21 +102,17 @@ A Thelma component providing solution to no problem in particular.
         console.log("get selections")
         
         var self = this;
-        self.selectedLabel = self.selectedLabel || Object.keys(self.data[0])[0];
-        self.selectedValues = self.selectedValues || Object.keys(self.data[0]).splice(1);
+        self.selectedLabel = /*self.selectedLabel || */ Object.keys(self.input[0])[0];
+        self.selectedValues = /*self.selectedValues || */ Object.keys(self.input[0]).splice(1);
         
         self.selections = [self.selectedLabel, self.selectedValues];
-        console.log(self.selections);
-        console.log(self.selectedLabel);
-        console.log(self.selectedValues);
-
-        self.fire('th-data-selection-changed');
+        this.fire('th-data-selection-changed');
       },
 
       eligible: function(attr,index) {
         var self = this;
         if(self.selectionSettings[index] && self.selectionSettings[index].type==='numerical') {
-          var num =  self.$.data_utility.isColumnNumeric(self.data, attr );
+          var num =  self.$.data_utility.isColumnNumeric(self.input, attr );
           return num;
         }
         
