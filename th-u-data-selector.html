@@ -56,7 +56,7 @@ A Thelma component providing solution to no problem in particular.
               
             <core-selector id="value_selector" selected="{{selections[index]}}" valueattr="label" multi="{{sel.multi}}">
                 <template repeat="{{attr in _dataAttributes}}">
-                  <template if="{{attr | eligible(index)}}">
+                  <template if="{{attr | isEligible(index)}}">
                     <div class="col" label="{{attr}}">{{attr}}</div>
                   </template>
                 </template>
@@ -99,17 +99,24 @@ A Thelma component providing solution to no problem in particular.
       },
 
       getDefaultSelections: function(){
-        console.log("get selections")
         
         var self = this;
-        self.selectedLabel = /*self.selectedLabel || */ Object.keys(self.input[0])[0];
-        self.selectedValues = /*self.selectedValues || */ Object.keys(self.input[0]).splice(1);
+        self.selectionSettings.forEach(function(dp, i) {
+          if(dp.multi===false) {
+            self.selections[i] = Object.keys(self.input[0])[i];
+          }
+          else {
+            self.selections[i] =   Object.keys(self.input[0]).filter(function(key, index) {
+              return self.isEligible (key,1);
+            });
+          }
+        });
         
-        self.selections = [self.selectedLabel, self.selectedValues];
+        //self.selections = [self.selectedLabel, self.selectedValues];
         this.fire('th-data-selection-changed');
       },
 
-      eligible: function(attr,index) {
+      isEligible: function(attr,index) {
         var self = this;
         if(self.selectionSettings[index] && self.selectionSettings[index].type==='numerical') {
           var num =  self.$.data_utility.isColumnNumeric(self.input, attr );
