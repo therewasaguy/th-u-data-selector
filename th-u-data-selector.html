@@ -80,6 +80,13 @@ A Thelma component providing solution to no problem in particular.
         numOfSelections: "_extractAttributes"        
       },
       ready: function() {
+
+      this.selections = ['',''];
+      this.selectionSettings = [
+        {name: 'label', type: 'any', multi: false},
+        {name: 'value', type: 'numerical', multi: true}
+      ];
+
         this._extractAttributes();
 
         this.addEventListener('core-select', function() {
