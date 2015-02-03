@@ -75,10 +75,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'label', type: 'any', multi: false},
         {name: 'value', type: 'numerical', multi: true}
       ],
+      /*
       observe: {
-        input: "_extractAttributes",
-        numOfSelections: "_extractAttributes"        
+        input: "_stateChanged",
+        numOfSelections: "_stateChanged"        
       },
+      */
       ready: function() {
 
       this.selections = ['',''];
@@ -87,7 +89,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'value', type: 'numerical', multi: true}
       ];
 
-        this._extractAttributes();
+        this._extractAttributes(true);
+
+        if(!this.selections[0].length>0 || !this.selections[1].length>0) {
+          this._getDefaultSelections();
+        }
+
 
         this.addEventListener('core-select', function() {
           this.fire('th-data-selection-changed');
@@ -98,14 +105,48 @@ A Thelma component providing solution to no problem in particular.
         var self = this;
         if(self.input && self.input[0]) {
           self._dataAttributes = Object.keys(self.input[0]);
-          self.getDefaultSelections();
+          console.log('default selection' ,  self.selections[0].length , self.selections[1].length);
+
+          //find defualt label values when there is no values already set
 
         }
 
 
       },
+      selectionsChanged: function(oldVal, newVal) {
+        /*
+        console.log('********** selection changed', this.selections, oldVal, newVal);
+        if(oldVal.length>1 && oldVal[1].length>0) {
+          this.prevSelections = oldVal;
+        }
+        console.log('prevSelections', this.prevSelections);
+        */
+      },
+      inputChanged: function() {
+        console.log('********** input changed', this.input);
+        this._extractAttributes();
+        console.log('**',this.selections,this.selections[0], this.input[0], this.input[0][this.selections[0]]);
+        console.log('**',this.prevSelections , ' '+this.prevSelections );
+        if(this.prevSelections) {
+          console.log(' prev '+this.input[0][this.prevSelections[0]]);
+        }
 
-      getDefaultSelections: function(){
+        // get defaults only if input data structure changes...
+        if(this.input && this.input[0] && !this.input[0][this.selections[0]]) {
+
+          //if(!this.prevSelections || this.input[0][this.prevSelections[0]] ) {
+            this._getDefaultSelections();
+         // }
+        }
+      },
+
+      _getDefaultSelections: function(){
+
+        console.log('_getDefaultSelections');
+
+        this.prevSelections = this.selections;
+
+        console.log('prev '+this.prevSelections);
         
         var self = this;
         self.selectionSettings.forEach(function(dp, i) {
