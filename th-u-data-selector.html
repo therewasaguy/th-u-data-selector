@@ -98,6 +98,9 @@ A Thelma component providing solution to no problem in particular.
       _extractAttributes: function() {
 
         var self = this;
+        //to check if data structure has been changed.
+        self._prevDataAttributes = self._dataAttributes;
+
         if(self.input && self.input[0]) {
           self._dataAttributes = Object.keys(self.input[0]);
 
@@ -110,12 +113,18 @@ A Thelma component providing solution to no problem in particular.
       inputChanged: function() {
         this._extractAttributes();
 
+        //console.log('attributes new' , this._dataAttributes , this._prevDataAttributes )
+
+        var attrsEqual = this.$.data_utility.arraysEqual(this._dataAttributes, this._prevDataAttributes);
+
         //if input has selections don't set selections to default because 
         //otherwise input data structure has been changed. update input.
-        if(this.input && this.input[0] && !this.input[0][this.selections[0]]) {
-
-            this._getDefaultSelections();
+        if(!attrsEqual) {
+          this._getDefaultSelections();
         }
+
+
+    
       },
 
       _getDefaultSelections: function(){
