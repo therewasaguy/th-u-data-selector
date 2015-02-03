@@ -75,10 +75,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'label', type: 'any', multi: false},
         {name: 'value', type: 'numerical', multi: true}
       ],
+      /*
       observe: {
-        input: "_extractAttributes",
-        numOfSelections: "_extractAttributes"        
+        input: "_stateChanged",
+        numOfSelections: "_stateChanged"        
       },
+      */
       ready: function() {
 
       this.selections = ['',''];
@@ -87,7 +89,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'value', type: 'numerical', multi: true}
       ];
 
-        this._extractAttributes();
+        this._extractAttributes(true);
+
+        if(!this.selections[0].length>0 || !this.selections[1].length>0) {
+          this._getDefaultSelections();
+        }
+
 
         this.addEventListener('core-select', function() {
           this.fire('th-data-selection-changed');
@@ -98,14 +105,26 @@ A Thelma component providing solution to no problem in particular.
         var self = this;
         if(self.input && self.input[0]) {
           self._dataAttributes = Object.keys(self.input[0]);
-          self.getDefaultSelections();
+
+          //find defualt label values when there is no values already set
 
         }
 
 
       },
+      inputChanged: function() {
+        this._extractAttributes();
 
-      getDefaultSelections: function(){
+        //if input has selections don't set selections to default because 
+        //otherwise input data structure has been changed. update input.
+        if(this.input && this.input[0] && !this.input[0][this.selections[0]]) {
+
+            this._getDefaultSelections();
+        }
+      },
+
+      _getDefaultSelections: function(){
+
         
         var self = this;
         self.selectionSettings.forEach(function(dp, i) {
