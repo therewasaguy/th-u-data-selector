@@ -113,13 +113,11 @@ A Thelma component providing solution to no problem in particular.
       inputChanged: function() {
         this._extractAttributes();
 
-        //console.log('attributes new' , this._dataAttributes , this._prevDataAttributes )
 
         var attrsEqual = this.$.data_utility.arraysEqual(this._dataAttributes, this._prevDataAttributes);
 
-        //if input has selections don't set selections to default because 
-        //otherwise input data structure has been changed. update input.
-        if(!attrsEqual) {
+        // if attrubutes are not equal AND selections are similar to previous attributes (to avoid race conditions when recreating lens)
+        if(!attrsEqual && this._prevDataAttributes.indexOf(this.selections[0])>-1) {
           this._getDefaultSelections();
         }
 
