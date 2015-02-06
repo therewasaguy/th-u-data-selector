@@ -70,10 +70,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'label', type: 'any', multi: false},
         {name: 'value', type: 'numerical', multi: true}
       ],
+      /*
       observe: {
-        input: "_extractAttributes",
-        numOfSelections: "_extractAttributes"        
+        input: "_stateChanged",
+        numOfSelections: "_stateChanged"        
       },
+      */
       ready: function() {
 
       this.selections = ['',''];
@@ -82,7 +84,12 @@ A Thelma component providing solution to no problem in particular.
         {name: 'value', type: 'numerical', multi: true}
       ];
 
-        this._extractAttributes();
+        this._extractAttributes(true);
+
+        if(!this.selections[0].length>0 || !this.selections[1].length>0) {
+          this._getDefaultSelections();
+        }
+
 
         this.addEventListener('core-select', function() {
           this.fire('th-data-selection-changed');
@@ -91,16 +98,35 @@ A Thelma component providing solution to no problem in particular.
       _extractAttributes: function() {
 
         var self = this;
+        //to check if data structure has been changed.
+        self._prevDataAttributes = self._dataAttributes;
+
         if(self.input && self.input[0]) {
           self._dataAttributes = Object.keys(self.input[0]);
-          self.getDefaultSelections();
+
+          //find defualt label values when there is no values already set
 
         }
 
 
       },
+      inputChanged: function() {
+        this._extractAttributes();
 
-      getDefaultSelections: function(){
+
+        var attrsEqual = this.$.data_utility.arraysEqual(this._dataAttributes, this._prevDataAttributes);
+
+        // if attrubutes are not equal AND selections are similar to previous attributes (to avoid race conditions when recreating lens)
+        if(!attrsEqual && this._prevDataAttributes.indexOf(this.selections[0])>-1) {
+          this._getDefaultSelections();
+        }
+
+
+    
+      },
+
+      _getDefaultSelections: function(){
+
         
         var self = this;
         self.selectionSettings.forEach(function(dp, i) {
