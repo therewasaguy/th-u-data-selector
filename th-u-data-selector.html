@@ -15,7 +15,7 @@ A Thelma component providing solution to no problem in particular.
 @homepage http://thelmanews.github.io/th-u-data-selector
 -->
 
-<polymer-element name="th-u-data-selector" attributes="input selectionSetting selections ">
+<polymer-element name="th-u-data-selector" attributes="input selectionSettings selections ">
   <template>
     <style>
         core-selector {
@@ -64,7 +64,6 @@ A Thelma component providing solution to no problem in particular.
   </template>
   <script>
     Polymer({
-     
       selections: ['',''],
       selectionSettings: [
         {name: 'label', type: 'any', multi: false},
@@ -77,34 +76,30 @@ A Thelma component providing solution to no problem in particular.
       },
       */
       ready: function() {
+        var self = this;
+        self.selections = ['',''];
+        
+        self._extractAttributes(true);
 
-      this.selections = ['',''];
-      this.selectionSettings = [
-        {name: 'label', type: 'any', multi: false},
-        {name: 'value', type: 'numerical', multi: true}
-      ];
-
-        this._extractAttributes(true);
-
-        if(!this.selections[0].length>0 || !this.selections[1].length>0) {
-          this._getDefaultSelections();
+        if(!self.selections[0].length>0 || !self.selections[1].length>0) {
+          self._getDefaultSelections();
         }
 
 
-        this.addEventListener('core-select', function() {
-          this.fire('th-data-selection-changed');
-        }.bind(this));
+        self.addEventListener('core-select', function() {
+          self.fire('th-data-selection-changed');
+        }.bind(self));
       },
       _extractAttributes: function() {
-
         var self = this;
+        
         //to check if data structure has been changed.
         self._prevDataAttributes = self._dataAttributes;
 
         if(self.input && self.input[0]) {
           self._dataAttributes = Object.keys(self.input[0]);
 
-          //find defualt label values when there is no values already set
+        //find default label values when there is no values already set
 
         }
 
@@ -116,32 +111,27 @@ A Thelma component providing solution to no problem in particular.
 
         var attrsEqual = this.$.data_utility.arraysEqual(this._dataAttributes, this._prevDataAttributes);
 
-        // if attrubutes are not equal AND selections are similar to previous attributes (to avoid race conditions when recreating lens)
+        // if attributes are not equal AND selections are similar to previous attributes (to avoid race conditions when recreating lens)
         if(!attrsEqual && this._prevDataAttributes.indexOf(this.selections[0])>-1) {
           this._getDefaultSelections();
         }
-
-
-    
       },
-
       _getDefaultSelections: function(){
-
-        
-        var self = this;
+        var self = this,
+            columns = Object.keys(self.input[0]);
+                        
         self.selectionSettings.forEach(function(dp, i) {
-          if(dp.multi===false) {
-            self.selections[i] = Object.keys(self.input[0])[i];
+          if(dp.type !=='numerical') {
+            self.selections[i] = columns[i];
           }
           else {
-            self.selections[i] =   Object.keys(self.input[0]).filter(function(key, index) {
+            self.selections[i] = columns.filter(function(key, index) {
               return self.isEligible (key,1);
             });
           }
         });
         
-        //self.selections = [self.selectedLabel, self.selectedValues];
-        this.fire('th-data-selection-changed');
+        self.fire('th-data-selection-changed');
       },
 
       isEligible: function(attr,index) {
