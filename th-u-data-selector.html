@@ -142,6 +142,9 @@ A Thelma component providing solution to no problem in particular.
         }
         
         return true;
+      },
+      isNumerical: function(attr){
+         return this.$.data_utility.isColumnNumeric(this.input, attr);
       }
 
     });
