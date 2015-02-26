@@ -88,7 +88,8 @@ A Thelma component providing solution to no problem in particular.
 
         self.addEventListener('core-select', function() {
           self.fire('th-data-selection-changed');
-        }.bind(self));
+        });
+
       },
       _extractAttributes: function() {
         var self = this;
@@ -111,22 +112,41 @@ A Thelma component providing solution to no problem in particular.
 
         var attrsEqual = this.$.data_utility.arraysEqual(this._dataAttributes, this._prevDataAttributes);
 
+
         // if attributes are not equal AND selections are similar to previous attributes (to avoid race conditions when recreating lens)
         if(!attrsEqual && this._prevDataAttributes.indexOf(this.selections[0])>-1) {
           this._getDefaultSelections();
         }
       },
       _getDefaultSelections: function(){
-        var self = this,
-            columns = Object.keys(self.input[0]);
+        var self = this;
+
+        if(!self.input) {
+          return;
+        }
+
+        var columns = Object.keys(self.input[0]);
                         
         self.selectionSettings.forEach(function(dp, i) {
-          if(dp.type !=='numerical') {
-            self.selections[i] = columns[i];
+          if(dp.multi===false) {
+            //single selection
+            if(dp.type !=='numerical') {
+              self.selections[i] = columns[0];
+            }
+            else {
+              //find the first numerical value
+              for(var j=0; j<columns.length; j++) {
+                if(self.isEligible (columns[j], 1)) {
+                  self.selections[i] = columns[j];
+                  break;
+                }
+              }
+
+            }
           }
           else {
             self.selections[i] = columns.filter(function(key, index) {
-              return self.isEligible (key,1);
+              return self.isEligible (key, 1);
             });
           }
         });
